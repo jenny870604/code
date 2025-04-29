@@ -1,9 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-from collections import defaultdict
 from matplotlib.font_manager import fontManager
 import matplotlib as mlp
-import mplcursors
 
 # 自訂縣市順序
 custom_order = [
@@ -13,49 +11,43 @@ custom_order = [
 ]
 
 # 讀取資料
-df = pd.read_csv('/Users/wuchiachen/Desktop/code/subject/Born/opendata113b050.csv', encoding='utf-8')
+df = pd.read_csv('./subject/Born/opendata113b050.csv', encoding='utf-8')
 
-# 累加各縣市的出生人數
-birth_counts = defaultdict(int)
-for _, row in df.iterrows():
-    site_id = row['區域別']
-    count = int(row['嬰兒出生數'])
+# 新增一欄：對應到 custom_order 中的縣市名稱
+def match_city(site_id):
     for city in custom_order:
         if str(site_id).startswith(city):
-            birth_counts[city] += count
-            break
+            return city
+    return None
 
-# 取得前三名（出生人數最多）
-top3 = sorted(birth_counts.items(), key=lambda x: x[1], reverse=True)[:3]
+df['縣市'] = df['區域別'].apply(match_city)
 
-# 輸出前三名
+# 聚合出生人數
+grouped = df.groupby('縣市')['嬰兒出生數'].sum().reindex(custom_order).fillna(0).astype(int)
+
+# 取得前三名
+top3 = grouped.sort_values(ascending=False).head(3)
 medals = ['🥇 金牌', '🥈 銀牌', '🥉 銅牌']
-for medal, (city, count) in zip(medals, top3):
+for medal, (city, count) in zip(medals, top3.items()):
     print(f"{medal}: {city} - {count}人")
 
-# 繪製直方圖
-cities = custom_order
-counts = [birth_counts[city] for city in cities]
+# 加入中文字體
+fontManager.addfont("ChineseFont.ttf")
+mlp.rc("font", family="ChineseFont")
 
-fontManager.addfont("ChineseFont.ttf") #加入字體
-mlp.rc("font",family="ChineseFont") #設定使用這個字體
-
+# 繪圖
 plt.figure(figsize=(12, 6))
-bars = plt.bar(cities, counts, color='skyblue')
+colors = ['gold' if city == top3.index[0]
+          else 'silver' if city == top3.index[1]
+          else 'peru' if city == top3.index[2]
+          else 'skyblue' for city in custom_order]
 
-# 標記前三名顏色
-for city, bar in zip(cities, bars):
-    if city == top3[0][0]:
-        bar.set_color('gold')
-    elif city == top3[1][0]:
-        bar.set_color('silver')
-    elif city == top3[2][0]:
-        bar.set_color('peru')  # 銅色
+bars = plt.bar(custom_order, grouped.values, color=colors)
 
 plt.xticks(rotation=45, ha='right')
 plt.xlabel('縣市')
 plt.ylabel('出生人數')
 plt.title('各縣市嬰兒出生人數')
-plt.savefig('Born_trends.png', dpi=300, bbox_inches='tight')
 plt.tight_layout()
+# plt.savefig('Born_trends.png', dpi=300, bbox_inches='tight')
 plt.show()
