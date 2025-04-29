@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from matplotlib.font_manager import fontManager
 import matplotlib as mlp
 
-# API 列表（順便加上年份）
+# API 列表（加上年份）
 url_years = [
     ("https://od.moi.gov.tw/api/v1/rest/datastore/301000000A-000605-079", 2023),
     ("https://od.moi.gov.tw/api/v1/rest/datastore/301000000A-000605-075", 2022),
@@ -56,31 +56,40 @@ for url, year in url_years:
 # 把所有資料合併起來
 full_df = pd.concat(all_data, ignore_index=True)
 
-# # 設定中文字型（不然中文會亂碼）
+# 設定中文字型（避免中文亂碼）
 # plt.rcParams['font.sans-serif'] = ['Microsoft JhengHei']
 fontManager.addfont("ChineseFont.ttf") #加入字體
 mlp.rc("font",family="ChineseFont") #設定使用這個字體
 
-# 把每一年分開畫圖
+# 分年份畫圖
 for year, group_df in full_df.groupby('year'):
     # 依城市加總人口
     result = group_df.groupby('city')['population'].sum().reset_index()
     result = result.sort_values(by='population', ascending=False)
 
+    # 設定顏色列表，預設是 skyblue
+    colors = ['skyblue'] * len(result)
+
+    # 排名前三名特別標金銀銅色
+    if len(result) >= 1:
+        colors[0] = 'gold'    # 第一名
+    if len(result) >= 2:
+        colors[1] = 'silver'  # 第二名
+    if len(result) >= 3:
+        colors[2] = '#cd7f32' # 第三名，銅色 (手動設定 Hex 色碼)
+
     # 畫圖
-    # plt.figure(figsize=(12, 8))
-    plt.figure(figsize=(8, 5))  # 縮小圖片
-    plt.bar(result['city'], result['population'], color='skyblue')
-    plt.xticks(rotation=45, ha='right', fontsize=8)  # x 軸城市名稱變小一點
-    plt.xlabel('縣市', fontsize=10)  # x 軸標籤字體大小
-    plt.ylabel('人口總數', fontsize=10)  # y 軸標籤字體大小
-    plt.title(f'{year}年各縣市人口總數', fontsize=12)  # 標題字體大小
+    plt.figure(figsize=(12, 8))
+    plt.bar(result['city'], result['population'], color=colors)
+    plt.xticks(rotation=45, ha='right')
+    plt.xlabel('縣市')
+    plt.ylabel('人口總數')
+    plt.title(f'{year}年各縣市人口總數')
     plt.tight_layout()
 
     # 存成圖片
-#     plt.savefig(f'population_{year}.png')
-#     plt.close()
+    plt.savefig(f'population_{year}.png')
+    plt.close()
 
-# print("全部圖片都存好了！")
-# 顯示圖形
+print("全部加上金銀銅的圖片都存好了！🥇🥈🥉")
 plt.show()
