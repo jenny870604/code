@@ -80,11 +80,12 @@ for url, year in url_years:
 final_df = pd.DataFrame.from_dict(data, orient='index')
 final_df = final_df.reindex(custom_order)  # 按自訂順序排縣市
 final_df = final_df.sort_index(axis=1)     # 年份升冪排序
-
+final_df = final_df / 10000
 print(final_df)
 
 # 可以選擇存檔
-# final_df.to_csv('population_by_county.csv', encoding='utf-8-sig')
+
+# final_df.to_csv('population_by_county.csv', encoding='utf-8')
 # final_df.to_excel('population_by_county.xlsx')
 
 # plt.rcParams['font.sans-serif'] = ['Microsoft JhengHei']
@@ -109,10 +110,11 @@ for city, row in final_df.iterrows():
     line, = plt.plot(final_df.columns, row, label=city, marker='o')
     lines.append(line)
 
+
 # 添加標題和標籤
 plt.title('歷年各縣市人口變化', fontsize=16)
 plt.xlabel('年份', fontsize=12)
-plt.ylabel('總人口數', fontsize=12)
+plt.ylabel('總人口數（萬人）', fontsize=12)
 plt.xticks(rotation=45)
 
 # 顯示圖例
@@ -126,9 +128,9 @@ def on_add(sel):
     line = sel.artist
     city = line.get_label()
     x, y = sel.target
-    sel.annotation.set(text=f"{city}\n年份: {int(x)}\n人口: {int(y):,}")  # 加上千分位
+    sel.annotation.set(text=f"{city}\n年份: {int(x)}\n人口: {int(y):,}（萬）")  # 加上千分位
 
-
+plt.savefig('population_trends.png', dpi=300, bbox_inches='tight')
 # 顯示圖形
 plt.tight_layout()
 plt.show()
