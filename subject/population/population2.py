@@ -6,18 +6,18 @@ import matplotlib as mlp
 
 # API 列表（加上年份）
 url_years = [
-    ("https://od.moi.gov.tw/api/v1/rest/datastore/301000000A-000605-079", 2023),
-    ("https://od.moi.gov.tw/api/v1/rest/datastore/301000000A-000605-075", 2022),
-    ("https://od.moi.gov.tw/api/v1/rest/datastore/301000000A-000605-071", 2021),
-    ("https://od.moi.gov.tw/api/v1/rest/datastore/301000000A-000605-067", 2020),
-    ("https://od.moi.gov.tw/api/v1/rest/datastore/301000000A-000605-059", 2019),
-    ("https://od.moi.gov.tw/api/v1/rest/datastore/301000000A-000605-055", 2018),
-    ("https://od.moi.gov.tw/api/v1/rest/datastore/301000000A-000605-052", 2017),
-    ("https://od.moi.gov.tw/api/v1/rest/datastore/301000000A-000605-040", 2016),
-    ("https://od.moi.gov.tw/api/v1/rest/datastore/301000000A-000605-024", 2015),
-    ("https://od.moi.gov.tw/api/v1/rest/datastore/301000000A-000605-036", 2014),
-    ("https://od.moi.gov.tw/api/v1/rest/datastore/301000000A-000605-032", 2013),
-    ("https://od.moi.gov.tw/api/v1/rest/datastore/301000000A-000605-021", 2012),
+    ("https://od.moi.gov.tw/api/v1/rest/datastore/301000000A-000605-079", 2024),
+    ("https://od.moi.gov.tw/api/v1/rest/datastore/301000000A-000605-075", 2023),
+    ("https://od.moi.gov.tw/api/v1/rest/datastore/301000000A-000605-071", 2022),
+    ("https://od.moi.gov.tw/api/v1/rest/datastore/301000000A-000605-067", 2021),
+    ("https://od.moi.gov.tw/api/v1/rest/datastore/301000000A-000605-059", 2020),
+    ("https://od.moi.gov.tw/api/v1/rest/datastore/301000000A-000605-055", 2019),
+    ("https://od.moi.gov.tw/api/v1/rest/datastore/301000000A-000605-052", 2018),
+    ("https://od.moi.gov.tw/api/v1/rest/datastore/301000000A-000605-040", 2017),
+    ("https://od.moi.gov.tw/api/v1/rest/datastore/301000000A-000605-024", 2016),
+    ("https://od.moi.gov.tw/api/v1/rest/datastore/301000000A-000605-036", 2015),
+    ("https://od.moi.gov.tw/api/v1/rest/datastore/301000000A-000605-032", 2014),
+    ("https://od.moi.gov.tw/api/v1/rest/datastore/301000000A-000605-021", 2013),
 ]
 
 # 提取市縣的函數

@@ -9,18 +9,18 @@ from tqdm import tqdm
 
 # 年度網址與年份配對
 url_years = [
-    ("https://od.moi.gov.tw/api/v1/rest/datastore/301000000A-000605-079", 2023),
-    ("https://od.moi.gov.tw/api/v1/rest/datastore/301000000A-000605-075", 2022),
-    ("https://od.moi.gov.tw/api/v1/rest/datastore/301000000A-000605-071", 2021),
-    ("https://od.moi.gov.tw/api/v1/rest/datastore/301000000A-000605-067", 2020),
-    ("https://od.moi.gov.tw/api/v1/rest/datastore/301000000A-000605-059", 2019),
-    ("https://od.moi.gov.tw/api/v1/rest/datastore/301000000A-000605-055", 2018),
-    ("https://od.moi.gov.tw/api/v1/rest/datastore/301000000A-000605-052", 2017),
-    ("https://od.moi.gov.tw/api/v1/rest/datastore/301000000A-000605-040", 2016),
-    ("https://od.moi.gov.tw/api/v1/rest/datastore/301000000A-000605-024", 2015),
-    ("https://od.moi.gov.tw/api/v1/rest/datastore/301000000A-000605-036", 2014),
-    ("https://od.moi.gov.tw/api/v1/rest/datastore/301000000A-000605-032", 2013),
-    ("https://od.moi.gov.tw/api/v1/rest/datastore/301000000A-000605-021", 2012),
+    ("https://od.moi.gov.tw/api/v1/rest/datastore/301000000A-000605-079", 2024),
+    ("https://od.moi.gov.tw/api/v1/rest/datastore/301000000A-000605-075", 2023),
+    ("https://od.moi.gov.tw/api/v1/rest/datastore/301000000A-000605-071", 2022),
+    ("https://od.moi.gov.tw/api/v1/rest/datastore/301000000A-000605-067", 2021),
+    ("https://od.moi.gov.tw/api/v1/rest/datastore/301000000A-000605-059", 2020),
+    ("https://od.moi.gov.tw/api/v1/rest/datastore/301000000A-000605-055", 2019),
+    ("https://od.moi.gov.tw/api/v1/rest/datastore/301000000A-000605-052", 2018),
+    ("https://od.moi.gov.tw/api/v1/rest/datastore/301000000A-000605-040", 2017),
+    ("https://od.moi.gov.tw/api/v1/rest/datastore/301000000A-000605-024", 2016),
+    ("https://od.moi.gov.tw/api/v1/rest/datastore/301000000A-000605-036", 2015),
+    ("https://od.moi.gov.tw/api/v1/rest/datastore/301000000A-000605-032", 2014),
+    ("https://od.moi.gov.tw/api/v1/rest/datastore/301000000A-000605-021", 2013),
 ]
 
 # 自訂縣市排序
@@ -77,7 +77,7 @@ final_df = final_df / 10000  # 單位轉換為萬人
 print(final_df)
 
 # 可以選擇存檔
-final_df.to_csv('2012-2023各縣市總人口數.csv', encoding='utf-8')
+final_df.to_csv('2013-2024各縣市總人口數.csv', encoding='utf-8')
 
 # font 設定（載入中文字體）
 fontManager.addfont("ChineseFont.ttf")
@@ -111,6 +111,6 @@ def on_add(sel):
     sel.annotation.set(text=f"{city}\n年份: {int(x)}\n人口: {int(y):,}（萬）")
 
 # 儲存圖表
-plt.savefig('2012-2023各縣市總人口數.png', dpi=300, bbox_inches='tight')
+plt.savefig('2013-2024各縣市總人口數.png', dpi=300, bbox_inches='tight')
 plt.tight_layout()
 plt.show()
