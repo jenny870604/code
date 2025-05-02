@@ -76,6 +76,9 @@ final_df = final_df.sort_index(axis=1)      # 按年份升冪排序
 final_df = final_df / 10000  # 單位轉換為萬人
 print(final_df)
 
+# 可以選擇存檔
+final_df.to_csv('2012-2023各縣市總人口數.csv', encoding='utf-8')
+
 # font 設定（載入中文字體）
 fontManager.addfont("ChineseFont.ttf")
 mlp.rc("font", family="ChineseFont")
@@ -108,6 +111,6 @@ def on_add(sel):
     sel.annotation.set(text=f"{city}\n年份: {int(x)}\n人口: {int(y):,}（萬）")
 
 # 儲存圖表
-plt.savefig('population_trends.png', dpi=300, bbox_inches='tight')
+plt.savefig('2012-2023各縣市總人口數.png', dpi=300, bbox_inches='tight')
 plt.tight_layout()
 plt.show()

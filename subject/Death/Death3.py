@@ -46,6 +46,7 @@ all_data = all_data[all_data["sort_key"] >= 0].sort_values("sort_key").drop("sor
 death_data_2024 = death_data_2024[["縣市", "2024"]]
 combined_data = pd.merge(all_data, death_data_2024, on="縣市", how="left")
 
+
 # 設定中文字型
 fontManager.addfont("ChineseFont.ttf")
 mlp.rc("font", family="ChineseFont")
@@ -77,4 +78,5 @@ plt.savefig("死亡人數2015-2024.png")
 plt.show()
 
 ### 輸出 CSV ###
-combined_data_sorted.to_csv("死亡人數2015-2024.csv", index=False, encoding="utf-8")
+combined_data.columns = [""] + list(combined_data.columns[1:])
+combined_data.to_csv("死亡人數2015-2024.csv", index=False, encoding="utf-8")

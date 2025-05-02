@@ -42,7 +42,7 @@ for year, file_path in files.items():
     data[year] = grouped
 
 # 儲存為 CSV
-data.to_csv('出生人數_年度縣市.csv', encoding='utf-8')
+data.to_csv('2015-2024出生人數.csv', encoding='utf-8')
 
 # 設定中文字體
 fontManager.addfont("ChineseFont.ttf")
@@ -59,7 +59,7 @@ for city, row in data.iterrows():
 
 plt.xlabel('年度')
 plt.ylabel('出生人數')
-plt.title('2015-2024 各縣市嬰兒出生人數變化')
+plt.title('2015-2024 各縣市出生人數變化')
 plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', fontsize='small')
 plt.tight_layout()
 
@@ -73,5 +73,5 @@ def on_add(sel):
     sel.annotation.set(text=f"{city}\n出生人數: {y}人")
 
 # 儲存圖檔
-plt.savefig('出生人數折線圖.png', dpi=300, bbox_inches='tight')
+plt.savefig('2015-2024出生人數.png', dpi=300, bbox_inches='tight')
 plt.show()

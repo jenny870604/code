@@ -66,4 +66,6 @@ plt.show()
 
 all_data_renamed = all_data.copy()
 all_data_renamed.columns = [col for col in all_data.columns]
+# 修改欄位名稱：把「縣市」改為空字串
+all_data_renamed.columns = [""] + list(all_data_renamed.columns[1:])
 all_data_renamed.to_csv("死亡人數2015-2023.csv", index=False, encoding="utf-8-sig")
