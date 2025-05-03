@@ -73,7 +73,7 @@ for url, year in tqdm(url_years, desc="處理各年度人口資料"):
 final_df = pd.DataFrame.from_dict(data, orient='index')
 final_df = final_df.reindex(custom_order)   # 按縣市順序
 final_df = final_df.sort_index(axis=1)      # 按年份升冪排序
-final_df = final_df / 10000  # 單位轉換為萬人
+# final_df = final_df / 10000  # 單位轉換為萬人
 print(final_df)
 
 # 可以選擇存檔
@@ -108,7 +108,7 @@ def on_add(sel):
     line = sel.artist
     city = line.get_label()
     x, y = sel.target
-    sel.annotation.set(text=f"{city}\n年份: {int(x)}\n人口: {int(y):,}（萬）")
+    sel.annotation.set(text=f"{city}\n年份: {int(x)}\n人口: {int(y)/10000:,}（萬）")
 
 # 儲存圖表
 plt.savefig('2013-2024各縣市總人口數.png', dpi=300, bbox_inches='tight')
