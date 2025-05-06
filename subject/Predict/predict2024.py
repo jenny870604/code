@@ -6,6 +6,7 @@ from matplotlib.font_manager import fontManager
 import matplotlib as mlp
 import mplcursors
 
+
 # 讀取資料
 df = pd.read_csv("./subject/Predict/整合人口統計.csv")
 
@@ -62,7 +63,7 @@ for city, group in df_clean.groupby('縣市'):
 
     models = {
         'LinearRegression': LinearRegression(),
-        'RandomForest': RandomForestRegressor(random_state=42)
+        'RandomForest': RandomForestRegressor(random_state=1)
     }
 
     for model_name, model in models.items():
@@ -84,7 +85,7 @@ results_df = results_df.sort_values(['排序', '模型']).drop(columns='排序')
 print(results_df)
 
 # 儲存為 CSV
-csv_output_path = "./subject/Predict/2025_人口預測.csv"
+csv_output_path = "./subject/Predict/2024_人口預測.csv"
 results_df.to_csv(csv_output_path, index=False)
 
 # 設定中文字型
@@ -99,7 +100,7 @@ for model in results_df['模型'].unique():
 
 plt.xticks(rotation=45, ha='right')
 plt.ylabel('預測人口數')
-plt.title('2025 年各縣市人口預測')
+plt.title('2024 年各縣市人口預測')
 plt.legend()
 plt.tight_layout()
 
@@ -114,6 +115,6 @@ def on_add(sel):
 
 
 # 儲存圖片
-image_output_path = "./subject/Predict/2025_人口預測圖.png"
+image_output_path = "./subject/Predict/2024_人口預測圖.png"
 plt.savefig(image_output_path)
 plt.show()

@@ -15,7 +15,7 @@ df_move_in.rename(columns={'Unnamed: 0': '縣市'}, inplace=True)
 df_move_out.rename(columns={'Unnamed: 0': '縣市'}, inplace=True)
 # print(df_move_out)
 # 準備年份
-years = [str(y) for y in range(2015, 2025)]
+years = [str(y) for y in range(2015, 2024)]
 
 # 建立新 DataFrame
 rows = []
@@ -35,9 +35,9 @@ for year in years:
         prev_year = str(int(year) - 1)
         if prev_year in df_population.columns:
             prev_pop = df_population.loc[df_population['縣市'] == county, prev_year].values[0]
-            pop_change = total_pop - prev_pop
+            pop_change = total_pop - prev_pop #年人口變動
             try:
-                growth_rate = round((pop_change / prev_pop) * 100, 2)
+                growth_rate = round((pop_change / prev_pop) * 100, 2) #年增率
             except ZeroDivisionError:
                 growth_rate = 0
         else:
@@ -63,4 +63,4 @@ for year in years:
 result_df = pd.DataFrame(rows)
 
 # 儲存 CSV
-result_df.to_csv('./subject/Predict/整合人口統計.csv', index=False, encoding='utf-8-sig')
+result_df.to_csv('./subject/Predict/整合人口統計.csv', index=False, encoding='utf-8')
