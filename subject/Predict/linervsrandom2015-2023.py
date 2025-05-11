@@ -72,7 +72,7 @@ for city, group in df_selected.groupby('縣市'):
     y_pred_lr = lr_model.predict(X_train)
 
     # Random Forest
-    rf_model = RandomForestRegressor(n_estimators=50, random_state=42, n_jobs=1)
+    rf_model = RandomForestRegressor(random_state=1)
     rf_model.fit(X_train, y_train)
     y_pred_rf = rf_model.predict(X_train)
 

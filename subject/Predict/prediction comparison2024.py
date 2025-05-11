@@ -14,6 +14,7 @@ df_forecast_raw = pd.read_csv("./subject/Predict/2024_人口預測.csv")
 actual_cities = []
 actual_pops = []
 
+#讀取2024年實際人口數
 for i in range(len(df_actual)):
     city = df_actual.iloc[i][0]
     pop = df_actual.iloc[i][-1]
