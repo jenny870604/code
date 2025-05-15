@@ -6,10 +6,13 @@ from matplotlib.font_manager import fontManager
 import matplotlib as mlp
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
+import seaborn as sns
 
 # 資料載入
 df = pd.read_csv("./subject/population/2013-2024各縣市總人口數.csv")              
 pred_df = pd.read_csv("./subject/Predict/2024_人口預測.csv")
+# 讀取對應年份的 .xls 檔案
+file_age = './subject/Age/縣市人口按性別及五齡組(63).xls'
 
 # 將資料轉
 df = df.rename(columns={"Unnamed: 0": "縣市"})
@@ -26,7 +29,7 @@ mlp.rc("font", family="ChineseFont")
 # 主視窗
 root = tk.Tk()
 root.title("台灣人口統計分析與預測系統")
-root.geometry("1200x700")
+root.geometry("1400x800")
 
 frame = tk.LabelFrame(root, text="", padx=10, pady=10)
 frame.pack(pady=10)
@@ -37,6 +40,73 @@ cities = ['全台'] + [
     '彰化縣', '雲林縣', '嘉義縣', '嘉義市', '臺南市', '高雄市', '屏東縣',
     '宜蘭縣', '花蓮縣', '臺東縣', '澎湖縣', '金門縣', '連江縣'
 ]
+
+def draw_population(fig,year,city):
+    # 取得該城市從 2015 ~ 選定年份 的資料
+    year_range = [y for y in years if y <= year]
+    ax1 = fig.add_subplot(221)
+
+    if city != "全台":
+        city_data = df_long[
+            (df_long["縣市"] == city) &
+            (df_long["年份"].astype(str).isin(year_range))
+            ]
+        y_values = city_data["總人口"] / 10000
+        ax1.plot(city_data["年份"], y_values, marker="o")
+    else:
+        city_data = df_long[
+                df_long["年份"].isin(year_range)
+            ]
+        # 為每個縣市畫一條線
+        for city_name in city_data["縣市"].unique():
+            sub_data = city_data[city_data["縣市"] == city_name]
+            ax1.plot(sub_data["年份"], sub_data["總人口"] / 10000, marker="o", label=city_name)
+            ax1.legend(bbox_to_anchor=(1, 1), loc="upper left", fontsize="small")
+            y_values = city_data["總人口"] / 10000
+            
+    y_min = y_values.min()
+    y_max = y_values.max()
+    buffer = (y_max - y_min) * 0.05
+    y_min -= buffer
+    y_max += buffer
+
+    ax1.set_title(f"{city} 歷年總人口變化")
+    ax1.set_xlabel("年")
+    ax1.set_ylabel("人口數(萬)")
+    ax1.set_ylim(y_min, y_max)
+    ax1.grid(True)
+
+def draw_Age(fig, df_age, row_idx, title):
+    age_labels = ['0', '1~4']
+    male_counts = [df_age.iloc[row_idx, 3], df_age.iloc[row_idx, 4]]
+    female_counts = [df_age.iloc[row_idx + 1, 3], df_age.iloc[row_idx + 1, 4]]
+
+    col = 9
+    current_age = 5
+    while True:
+        try:
+            male = df_age.iloc[row_idx, col]
+            female = df_age.iloc[row_idx + 1, col]
+            if pd.isna(male) or pd.isna(female):
+                break
+            age_labels.append(f'{current_age}~{current_age + 4}')
+            male_counts.append(male)
+            female_counts.append(female)
+            current_age += 5
+            col += 1
+        except IndexError:
+            break
+
+    ax = fig.add_subplot(224)
+    y = range(len(age_labels))
+    ax.barh(y, [-x / 10000 for x in male_counts], color='skyblue', label='男性')
+    ax.barh(y, [x / 10000 for x in female_counts], color='lightcoral', label='女性')
+    ax.set_yticks(y)
+    ax.set_yticklabels(age_labels)
+    ax.set_xlabel('人口數(萬)')
+    ax.set_title(f'{title} 人口金字塔圖')
+    ax.invert_yaxis()
+    ax.legend()
 
 #下拉式選單
 dropdown_frame = tk.Frame(root)
@@ -62,96 +132,57 @@ plot_frame.pack(pady=10)
 
 # 查詢按鈕
 def on_submit():
+    for widget in plot_frame.winfo_children():
+     widget.destroy()
+    fig = Figure(figsize=(18, 15), dpi=80)
+    fig.subplots_adjust(left=0.05, right=0.98, top=0.95, bottom=0.1)
+
     year = year_var.get()
     city = city_var.get()
     result_label.config(text=f"查詢：{year} 年 {city}")
-    
-     # 清空原本的圖表 Frame 內容（避免重疊）
-    for widget in plot_frame.winfo_children():
-        widget.destroy()
+    df_age = pd.read_excel(file_age, sheet_name=str(int(year) - 1911), header=None)
+
+    # 建立查詢縣市對應的 row index
+    county_index_map = {}
+    for i in range(8, len(df_age), 3):
+        county_raw = df_age.iloc[i][0]
+        if pd.isna(county_raw):
+            continue
+        county = str(county_raw).replace(" ", "").strip()
+        if county in cities:
+            county_index_map[county] = i
+        # print(county)
 
     if city != "全台":
-        # 取得該城市從 2015 ~ 選定年份 的資料
-        year_range = [y for y in years if y <= year]
-        city_data = df_long[
-            (df_long["縣市"] == city) &
-            (df_long["年份"].astype(str).isin(year_range))
-            ]
-        
-        y_values = city_data["總人口"] / 10000
-        y_min = y_values.min()
-        y_max = y_values.max()
-        buffer = (y_max - y_min) * 0.05
-        y_min -= buffer
-        y_max += buffer
+        # 人口折線圖
+        draw_population(fig,year,city)
 
-        fig = Figure(figsize=(12, 5), dpi=100)
-        ax1 = fig.add_subplot(121)  # 左邊子圖：折線圖
-        ax1.plot(city_data["年份"], y_values, marker="o")
-        ax1.set_title(f"{city} 歷年總人口變化")
-        ax1.set_xlabel("年")
-        ax1.set_ylabel("人口數(萬)")
-        ax1.set_ylim(y_min, y_max)
-        ax1.grid(True)
+        i = county_index_map.get(city)
+        if i is None:
+            return
+        
+        # 金字塔圖
+        draw_Age(fig,df_age,i,city)
+
+        # ax3 = fig.add_subplot(223)
   
     else:
-            # 各縣市總人口長條圖
-            pop_yr = df_long[df_long["年份"] == year]
-            pop_yr = pop_yr.sort_values("總人口", ascending=False)
+        # 人口折線圖
+        draw_population(fig,year,city)
 
-            # 建立 Figure 並畫圖
-            fig = Figure(figsize=(13, 7), dpi=100)
-            ax1 = fig.add_subplot(121)
-            ax1.bar(pop_yr["縣市"], pop_yr["總人口"]/10000)
-            ax1.set_title(f"{year} 各縣市人口排行")
-            ax1.set_ylabel("人口(萬)")
-            ax1.tick_params(axis='x', rotation=45)    
+        # 金字塔圖：全台總和
+        draw_Age(fig, df_age, 5, year)
 
-             # 金字塔圖：全台總和
-            # 讀取對應年份的 .xls 檔案
-            xls_path = './subject/Age/縣市人口按性別及五齡組(63).xls'
-            try:
-                df_age = pd.read_excel(xls_path, sheet_name=str(int(year) - 1911), header=None)
-            except:
-                df_age = None
+        # 各縣市總人口長條圖
+        pop_yr = df_long[df_long["年份"] == year]
+        pop_yr = pop_yr.sort_values("總人口", ascending=False)
 
-            if df_age is not None:
-                # 假設全台加總在 row 5（男）與 row 6（女）
-                age_labels = ['0', '1~4']
-                male_counts = [df_age.iloc[5, 3], df_age.iloc[5, 4]]
-                female_counts = [df_age.iloc[6, 3], df_age.iloc[6, 4]]
-
-                col = 9
-                current_age = 5
-                while True:
-                    try:
-                        m = df_age.iloc[5, col]
-                        f = df_age.iloc[6, col]
-                        if pd.isna(m) or pd.isna(f):
-                            break
-                        age_labels.append(f'{current_age}~{current_age+4}')
-                        male_counts.append(m)  # 男性為負
-                        female_counts.append(f)
-                        current_age += 5
-                        col += 1
-                    except IndexError:
-                        break
-
-                # 轉為萬人
-                male_counts = [-x / 10000 for x in male_counts]
-                female_counts = [x / 10000 for x in female_counts]
-
-                # 畫金字塔圖
-                ax2 = fig.add_subplot(122)
-                y_pos = range(len(age_labels))
-                ax2.barh(y_pos, male_counts, color='skyblue', label='男性')
-                ax2.barh(y_pos, female_counts, color='lightpink', label='女性')
-                ax2.set_yticks(y_pos)
-                ax2.set_yticklabels(age_labels)
-                ax2.set_xlabel('人數（萬人）')
-                ax2.set_title(f"{year} 全台人口金字塔")
-                ax2.legend()
-                ax2.invert_yaxis()        
+        ax3 = fig.add_subplot(223)
+        ax3.bar(pop_yr["縣市"], pop_yr["總人口"]/10000)
+        ax3.set_title(f"{year} 各縣市人口排行")
+        ax3.set_ylabel("人口(萬)")
+        ax3.tick_params(axis='x', rotation=45) 
+               
     # 顯示圖表在 Tkinter
     canvas = FigureCanvasTkAgg(fig, master=plot_frame)
     canvas.draw()
