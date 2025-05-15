@@ -6,7 +6,7 @@ from matplotlib.font_manager import fontManager
 import matplotlib as mlp
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
-import seaborn as sns
+import numpy as np
 
 # 資料載入
 df = pd.read_csv("./subject/population/2013-2024各縣市總人口數.csv")              
@@ -97,7 +97,7 @@ def draw_Age(fig, df_age, row_idx, title):
         except IndexError:
             break
 
-    ax = fig.add_subplot(224)
+    ax = fig.add_subplot(222)
     y = range(len(age_labels))
     ax.barh(y, [-x / 10000 for x in male_counts], color='skyblue', label='男性')
     ax.barh(y, [x / 10000 for x in female_counts], color='lightcoral', label='女性')
@@ -133,9 +133,9 @@ plot_frame.pack(pady=10)
 # 查詢按鈕
 def on_submit():
     for widget in plot_frame.winfo_children():
-     widget.destroy()
+        widget.destroy()
     fig = Figure(figsize=(18, 15), dpi=80)
-    fig.subplots_adjust(left=0.05, right=0.98, top=0.95, bottom=0.1)
+    fig.subplots_adjust(left=0.05, right=0.98, top=0.95, bottom=0.05)
 
     year = year_var.get()
     city = city_var.get()
@@ -151,7 +151,6 @@ def on_submit():
         county = str(county_raw).replace(" ", "").strip()
         if county in cities:
             county_index_map[county] = i
-        # print(county)
 
     if city != "全台":
         # 人口折線圖
@@ -164,24 +163,90 @@ def on_submit():
         # 金字塔圖
         draw_Age(fig,df_age,i,city)
 
-        # ax3 = fig.add_subplot(223)
+        
   
     else:
         # 人口折線圖
         draw_population(fig,year,city)
 
         # 金字塔圖：全台總和
-        draw_Age(fig, df_age, 5, year)
+        # draw_Age(fig, df_age, 5, year)
 
         # 各縣市總人口長條圖
         pop_yr = df_long[df_long["年份"] == year]
         pop_yr = pop_yr.sort_values("總人口", ascending=False)
 
+        ax2 = fig.add_subplot(222)
+        ax2.bar(pop_yr["縣市"], pop_yr["總人口"]/10000)
+        ax2.set_title(f"{year} 各縣市人口排行")
+        ax2.set_ylabel("人口(萬)")
+        ax2.tick_params(axis='x', rotation=45) 
+    
+    if year=='2024':
+        # 處理實際人口（最後一欄是2024年人口）
+        actual_cities = []
+        actual_pops = []
+
+        for i in range(len(df)):
+            city = df.iloc[i][0]
+            pop = df.iloc[i][-1]
+            actual_cities.append(city)
+            actual_pops.append(pop)
+
+        df_actual_2024 = pd.DataFrame({
+            '縣市': actual_cities,
+            '實際人口': actual_pops
+        })
+
+        # 處理預測資料
+        forecast_data = []
+        # LinearRegression
+        for i in range(0, len(pred_df), 2):
+            city = pred_df.iloc[i][0]
+            model = pred_df.iloc[i][1]
+            pred = pred_df.iloc[i][3]
+            forecast_data.append([city, model, pred])
+        
+        # RandomForest
+        for i in range(1, len(pred_df), 2):
+            city = pred_df.iloc[i][0]
+            model = pred_df.iloc[i][1]
+            pred = pred_df.iloc[i][3]
+            forecast_data.append([city, model, pred])
+
+        df_forecast = pd.DataFrame(forecast_data, columns=['縣市', '模型', '預測人口'])
+        df_merge = df_forecast.merge(df_actual_2024, on='縣市', how='inner')
+
+        # 計算誤差指標
+        df_merge['MAE'] = abs(df_merge['預測人口'] - df_merge['實際人口'])
+        df_merge['MAPE'] = abs(df_merge['預測人口'] - df_merge['實際人口']) / df_merge['實際人口'] * 100
+        df_merge['MSE'] = (df_merge['預測人口'] - df_merge['實際人口']) ** 2
+
+        df_merge['縣市'] = pd.Categorical(df_merge['縣市'], categories=cities[1:], ordered=True)
+        df_merge = df_merge.sort_values(['模型', '縣市'])
+
+        linear_pred = df_merge[df_merge['模型'] == 'LinearRegression'].sort_values('縣市')
+        rf_pred = df_merge[df_merge['模型'] == 'RandomForest'].sort_values('縣市')
+        actual = df_actual_2024.copy()
+        actual = actual.set_index('縣市').loc[linear_pred['縣市']].reset_index()
+
+        labels = linear_pred['縣市'].tolist()
+        x = np.arange(len(labels))
+        width = 0.25
+
+        # fig, ax = plt.subplots(figsize=(18, 8))
         ax3 = fig.add_subplot(223)
-        ax3.bar(pop_yr["縣市"], pop_yr["總人口"]/10000)
-        ax3.set_title(f"{year} 各縣市人口排行")
-        ax3.set_ylabel("人口(萬)")
-        ax3.tick_params(axis='x', rotation=45) 
+        ax3.plot(x , linear_pred['預測人口']/10000,  label='LinearRegression', marker='o')
+        ax3.plot(x, rf_pred['預測人口']/10000,  label='RandomForest', linestyle='--', marker='x')
+        ax3.plot(x , actual['實際人口']/10000,  label='實際人口', linestyle='--', marker='s')
+
+        ax3.set_xlabel('縣市')
+        ax3.set_ylabel('人口數 (萬)')
+        ax3.set_title('各縣市人口預測比較（LinearRegression vs RandomForest vs 實際）')
+        ax3.set_xticks(x)
+        ax3.set_xticklabels(labels, rotation=45, ha='right')
+        ax3.legend()
+        fig.tight_layout()
                
     # 顯示圖表在 Tkinter
     canvas = FigureCanvasTkAgg(fig, master=plot_frame)
