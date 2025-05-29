@@ -49,7 +49,7 @@ for url, year in tqdm(url_years, desc="處理各年度人口資料"):
     df = pd.DataFrame(result['result']['records'])
 
     # 篩選合法資料（site_id 包含「縣」或「市」，且長度不超過 8）
-    df = df[df['site_id'].str.contains('市|縣') & (df['site_id'].str.len() <= 8)]
+    df = ≈[df['site_id'].str.contains('市|縣') & (df['site_id'].str.len() <= 8)]
 
     # 擷取城市
     df['city'] = df['site_id'].apply(extract_city)

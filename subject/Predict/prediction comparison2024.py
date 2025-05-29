@@ -78,7 +78,7 @@ for model in df_merge['模型'].unique():
     print(f"MAPE: {mape:.2f}%")
 
 # 將結果輸出為 CSV
-df_merge.to_csv("./subject/Predict/人口預測誤差比較_2024.csv", index=False, encoding='utf-8')
+# df_merge.to_csv("./subject/Predict/人口預測誤差比較_2024.csv", index=False, encoding='utf-8')
 
 # 設定中文字型
 fontManager.addfont("ChineseFont.ttf")
@@ -117,5 +117,5 @@ def on_add(sel):
     sel.annotation.set(text=f"{model}\n縣市:{x_label}\n人口: {int(y):}（萬）")
 
 # 儲存圖片
-plt.savefig("./subject/Predict/人口預測比較圖_2024.png", dpi=300)
-plt.show()
+# plt.savefig("./subject/Predict/人口預測比較圖_2024.png", dpi=300)
+# plt.show()
